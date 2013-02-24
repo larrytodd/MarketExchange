@@ -1,0 +1,85 @@
+﻿@model SignalRMarketEx.Models.ItemEntity
+@{
+    ViewBag.Title = "Market Exchange";
+}
+ @section scripts
+    {
+        <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+        <script src="~/Scripts/jquery.validate.min.js"></script>
+        <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+        <script src="~/Scripts/jquery.signalR-1.0.0.min.js"></script>
+        <script src="~/Scripts/knockout-2.2.0.js"></script>
+        <script src="~/Scripts/jquery-ui-1.9.2.min.js"></script>
+        <script src="~/signalr/hubs"></script>
+        <script src="~/Scripts/marketexchange.js"></script>
+    }
+<div id="wrapper">
+    <button id="btnShowAdd">Add An Item</button>
+    <table id="tblMarket">
+        <thead>
+            <tr>
+                <th>
+                    Product
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Bid
+                </th>
+                <th>
+                    Ask
+                </th>
+                <th>
+                    Last Price
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+           <!--ko foreach: items -->
+                <tr data-bind="attr: {id:itemId}">
+                    <td>
+                        <span data-bind="text: product"></span>
+                    </td>
+                    <td>
+                        <span data-bind="text: description"></span>
+                    </td>
+                    <td>
+                        <span class="bid" data-bind="text: bid"></span>
+                    </td>
+                    <td>
+                        <span class="ask" data-bind="text: ask"></span>
+                    </td>
+                    <td>
+                        <span data-bind="text: lastPrice"></span>
+                    </td>
+                    <td>
+                        <input placeholder="Place a bid" name="biddingPrice" data-bind="value: bidPrice" />
+                        <a href="#" name="bid" data-bind="value: bid">Bid</a>
+                    </td>
+                </tr>
+            <!-- /ko -->
+        </tbody>
+    </table>
+    <div title="Add A Product" id="divAddItemModal">
+        @using(Ajax.BeginForm("Index","Home", new AjaxOptions{ OnSuccess="UpdateItemSuccess", OnFailure="UpdateItemFailure" }))
+        {
+            <ul>
+                <li>
+                    <label for="Product">Product</label>
+                    @Html.TextBoxFor(x => x.Product)
+                </li>
+                <li>
+                    <label for="Description">Description</label>
+                    @Html.TextBoxFor(x=> x.Description)
+                </li>
+                <li>
+                    <label for="Ask">Initial Ask</label>
+                    @Html.TextBoxFor(x => x.Ask)
+                </li>
+            </ul>
+            <button type="submit" >Add</button>
+        }
+    </div>
+</div>
