@@ -17,18 +17,21 @@ namespace SignalRMarketEx.Controllers
 
         public ActionResult Index()
         {
-            return View();
+            var itemEntry = new List<ItemEntity>();
+            itemEntry.Add(new ItemEntity() { Bid=25, Description="initial Item. A filler until we can get persistant store", Ask=35, LastPrice=30, Product="Item 1" });
+            return View(itemEntry);
         }
         [HttpPost]
         public ActionResult Index(ItemEntity model)
         {
-            if (Request.IsAjaxRequest())
-            {
-                var context = GlobalHost.ConnectionManager.GetHubContext<MarketExchangeHub>();
-                context.Clients.All.updateItems(model);
-                return Json(model);
-            }
             return View(model);
+        }
+        public JsonResult ItemEntry(ItemEntity model)
+        {
+            //Item Entry
+            var context = GlobalHost.ConnectionManager.GetHubContext<MarketExchangeHub>();
+            context.Clients.All.updateItems(model);
+            return Json(model);
         }
     }
 }

@@ -83,7 +83,6 @@ button
 #tblMarket
 {
 	margin:0 auto;
-	display:block;
 	width:600px;
 	border:1px solid black;
 	border-collapse:collapse;
@@ -105,7 +104,6 @@ button
 	#tblMarket td,#tblMarket th
 	{
 		padding:5px;
-		width:1500px;
 	}
 #btnShowAdd
 {

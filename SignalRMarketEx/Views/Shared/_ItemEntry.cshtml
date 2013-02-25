@@ -1,0 +1,16 @@
+﻿@using SignalRMarketEx.Models
+@model ItemEntity
+ <ul>
+    <li>
+        <label for="Product">Product</label>
+        @Html.TextBoxFor(x => x.Product)
+    </li>
+    <li>
+        <label for="Description">Description</label>
+        @Html.TextBoxFor(x=> x.Description)
+    </li>
+    <li>
+        <label for="Ask">Initial Ask</label>
+        @Html.TextBoxFor(x => x.Ask)
+    </li>
+</ul>

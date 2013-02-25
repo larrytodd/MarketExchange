@@ -1,4 +1,5 @@
-﻿@model SignalRMarketEx.Models.ItemEntity
+﻿@using SignalRMarketEx.Models
+@model List<ItemEntity>
 @{
     ViewBag.Title = "Market Exchange";
 }
@@ -12,6 +13,58 @@
         <script src="~/Scripts/jquery-ui-1.9.2.min.js"></script>
         <script src="~/signalr/hubs"></script>
         <script src="~/Scripts/marketexchange.js"></script>
+        <script type="text/javascript">
+            $(function () {
+                function Item(data) {
+                    this.itemId = ko.observable(data.itemId);
+                    this.product = ko.observable(data.product);
+                    this.description = ko.observable(data.description);
+                    this.bid = ko.observable(data.bid);
+                    this.ask = ko.observable(data.ask);
+                    this.lastPrice = ko.observable(data.lastPrice);
+                    this.bidPrice = ko.observable(data.bidPrice);
+                }
+                var itemsModel = function ItemListViewModel() {
+                    var self = this;
+                    self.items = ko.observableArray([]);
+                    @foreach(var itm in Model)
+                    {
+                        @Html.Raw("self.items.push(new Item({")
+                        @Html.Raw("itemId: 'itm_" + itm.Id + "',")
+                        @Html.Raw("product: '"+ itm.Product +"',")
+                        @Html.Raw("description: '"+itm.Description+"',")
+                        @Html.Raw("bid: "+(!itm.Bid.HasValue?"0" : itm.Bid.Value.ToString())+",")
+                        @Html.Raw("ask: "+(!itm.Ask.HasValue?"0":itm.Ask.Value.ToString())+",")
+                        @Html.Raw("lastPrice: "+(!itm.LastPrice.HasValue?"0":itm.LastPrice.Value.ToString())+",")
+                        @Html.Raw("bidPrice: \"\"")
+                        @Html.Raw("}));")
+                    }
+                    //Operations
+                    self.updateItems = function (data) {
+                        self.items.push(new Item({
+                            itemId: 'itm_' + data.itemId,
+                            product: data.product,
+                            description: data.description,
+                            bid: data.bid,
+                            ask: data.ask,
+                            lastPrice: data.lastPrice,
+                            bidPrice: ""
+                        }));
+                    };
+                    self.bidItem = function () {
+
+                    };
+                }
+                ko.applyBindings(itemsModel());
+                //SignalR bindings
+                var hub = $.connection.marketExchangeHub;
+                $.connection.hub.start();
+                hub.client.updateItems = function (data) {
+                    updateItems(data);
+                    $('#itm_' + data.itemId).animate({ "background-color": "red" }, 1000).delay(200).animate({ "background-color": "white" }, 1000);
+                };
+            });
+        </script>
     }
 <div id="wrapper">
     <button id="btnShowAdd">Add An Item</button>
@@ -55,7 +108,7 @@
                         <span data-bind="text: lastPrice"></span>
                     </td>
                     <td>
-                        <input placeholder="Place a bid" name="biddingPrice" data-bind="value: bidPrice" />
+                        <input name="biddingPrice" style="width:50px;" data-bind="value: bidPrice" />
                         <a href="#" name="bid" data-bind="value: bid">Bid</a>
                     </td>
                 </tr>
@@ -63,22 +116,9 @@
         </tbody>
     </table>
     <div title="Add A Product" id="divAddItemModal">
-        @using(Ajax.BeginForm("Index","Home", new AjaxOptions{ OnSuccess="UpdateItemSuccess", OnFailure="UpdateItemFailure" }))
+        @using (Ajax.BeginForm("ItemEntry", "Home", new AjaxOptions { OnSuccess = "UpdateItemSuccess", OnFailure = "UpdateItemFailure" }))
         {
-            <ul>
-                <li>
-                    <label for="Product">Product</label>
-                    @Html.TextBoxFor(x => x.Product)
-                </li>
-                <li>
-                    <label for="Description">Description</label>
-                    @Html.TextBoxFor(x=> x.Description)
-                </li>
-                <li>
-                    <label for="Ask">Initial Ask</label>
-                    @Html.TextBoxFor(x => x.Ask)
-                </li>
-            </ul>
+            @Html.Partial("_ItemEntry", new ItemEntity())
             <button type="submit" >Add</button>
         }
     </div>
