@@ -17,6 +17,9 @@
             $(function () {
                 function Item(data) {
                     this.itemId = ko.observable(data.itemId);
+                    this.hrefId = ko.observable(data.hrefId);
+                    this.bidPriceId = ko.observable(data.bidPriceId);
+                    this.lastPriceId = ko.observable(data.lastPriceId);
                     this.product = ko.observable(data.product);
                     this.description = ko.observable(data.description);
                     this.bid = ko.observable(data.bid);
@@ -31,6 +34,9 @@
                     {
                         @Html.Raw("self.items.push(new Item({")
                         @Html.Raw("itemId: 'itm_" + itm.Id + "',")
+                        @Html.Raw("hrefId: 'href_" + itm.Id + "',")
+                        @Html.Raw("bidPriceId: 'bidPrice_" + itm.Id + "',")
+                        @Html.Raw("lastPriceId: 'lastPrice_" + itm.Id + "',")
                         @Html.Raw("product: '"+ itm.Product +"',")
                         @Html.Raw("description: '"+itm.Description+"',")
                         @Html.Raw("bid: "+(!itm.Bid.HasValue?"0" : itm.Bid.Value.ToString())+",")
@@ -43,6 +49,9 @@
                     self.updateItems = function (data) {
                         self.items.push(new Item({
                             itemId: 'itm_' + data.itemId,
+                            hrefId: 'href_' + data.itemId,
+                            bidPriceId: 'bidPrice_' + data.itemId,
+                            lastPriceId: 'lastPrice_' + data.itemId,
                             product: data.product,
                             description: data.description,
                             bid: data.bid,
@@ -51,7 +60,7 @@
                             bidPrice: ""
                         }));
                     };
-                    self.bidItem = function () {
+                    self.bidItem = function (data) {
 
                     };
                 }
@@ -61,7 +70,17 @@
                 $.connection.hub.start();
                 hub.client.updateItems = function (data) {
                     updateItems(data);
-                    $('#itm_' + data.itemId).animate({ "background-color": "red" }, 1000).delay(200).animate({ "background-color": "white" }, 1000);
+                    $('#itm_' + data.itemId).animate({ "background-color": "red" }, 1000).animate({ "background-color": "white" }, 1000);
+                };
+                hub.client.updateBidPrice = function (data) {
+                    if (data.priceUpdated == true) {
+                        document.getElementById('lastPrice_' + data.itemId).innerHTML = data.lastPrice;
+                    }
+                    else {
+
+                    }
+                    document.getElementById('bidPrice_' + data.itemId).value = '';
+                    $('#itm_' + data.itemId).animate({ "background-color": "green" }, 1000).animate({ "background-color": "white" }, 1000);
                 };
             });
         </script>
@@ -105,11 +124,11 @@
                         <span class="ask" data-bind="text: ask"></span>
                     </td>
                     <td>
-                        <span data-bind="text: lastPrice"></span>
+                        <span data-bind="text: lastPrice, attr: { id: lastPriceId}"></span>
                     </td>
                     <td>
-                        <input name="biddingPrice" style="width:50px;" data-bind="value: bidPrice" />
-                        <a href="#" name="bid" data-bind="value: bid">Bid</a>
+                        <input name="biddingPrice" style="width:50px;" data-bind="value: bidPrice, attr: { id: bidPriceId }" />
+                        <a href="#" name="hrefbid" data-bind="value: bid, attr: {id:hrefId}">Bid</a>
                     </td>
                 </tr>
             <!-- /ko -->

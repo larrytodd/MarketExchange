@@ -12,6 +12,14 @@
     $('#btnShowAdd').click(function (e) {
         $('#divAddItemModal').dialog('open');
     });
+    $('[name="hrefbid"]').live('click', function (e) {
+        var id = $(this).attr('id').replace('href_', '');
+        var bidPrice = document.getElementById('bidPrice_' + id).value;
+        var lastPrice = document.getElementById('lastPrice_' + id).innerHTML;
+        $.getJSON('/Home/ItemBid', { 'id': id, 'bid': bidPrice, 'lastPrice': lastPrice }, function (data) {
+
+        });
+    });
 });
 //Ajax succes and failure methods
 function UpdateItemSuccess(data) {

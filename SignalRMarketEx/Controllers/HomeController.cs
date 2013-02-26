@@ -33,5 +33,12 @@ namespace SignalRMarketEx.Controllers
             context.Clients.All.updateItems(model);
             return Json(model);
         }
+        public JsonResult ItemBid(int id, decimal bid, decimal lastPrice)
+        {
+            ItemEntity itm = new ItemEntity(id, bid, lastPrice);
+            var context = GlobalHost.ConnectionManager.GetHubContext<MarketExchangeHub>();
+            context.Clients.All.updateBidPrice(itm);
+            return Json(itm, JsonRequestBehavior.AllowGet);
+        }
     }
 }
