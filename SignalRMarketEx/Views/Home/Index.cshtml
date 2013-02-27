@@ -20,6 +20,8 @@
                     this.hrefId = ko.observable(data.hrefId);
                     this.bidPriceId = ko.observable(data.bidPriceId);
                     this.lastPriceId = ko.observable(data.lastPriceId);
+                    this.bidId = ko.observable(data.bidId);
+                    this.askId = ko.observable(data.askId);
                     this.product = ko.observable(data.product);
                     this.description = ko.observable(data.description);
                     this.bid = ko.observable(data.bid);
@@ -37,6 +39,8 @@
                         @Html.Raw("hrefId: 'href_" + itm.Id + "',")
                         @Html.Raw("bidPriceId: 'bidPrice_" + itm.Id + "',")
                         @Html.Raw("lastPriceId: 'lastPrice_" + itm.Id + "',")
+                        @Html.Raw("bidId: 'bid_" + itm.Id + "',")
+                        @Html.Raw("askId: 'ask_" + itm.Id + "',")
                         @Html.Raw("product: '"+ itm.Product +"',")
                         @Html.Raw("description: '"+itm.Description+"',")
                         @Html.Raw("bid: "+(!itm.Bid.HasValue?"0" : itm.Bid.Value.ToString())+",")
@@ -52,6 +56,8 @@
                             hrefId: 'href_' + data.itemId,
                             bidPriceId: 'bidPrice_' + data.itemId,
                             lastPriceId: 'lastPrice_' + data.itemId,
+                            bidId: 'bid_' + data.itemId,
+                            askId: 'ask_' + data.itemId,
                             product: data.product,
                             description: data.description,
                             bid: data.bid,
@@ -75,12 +81,15 @@
                 hub.client.updateBidPrice = function (data) {
                     if (data.priceUpdated == true) {
                         document.getElementById('lastPrice_' + data.itemId).innerHTML = data.lastPrice;
+                        $('#itm_' + data.itemId).animate({ "background-color": "green" }, 1000).animate({ "background-color": "white" }, 1000);
                     }
                     else {
-
+                        var currentBid = document.getElementById('bid_' + data.itemId).innerHTML;
+                        if (data.bid > currentBid) {
+                            document.getElementById('bid_' + data.itemId).innerHTML = data.bid;
+                            $('#itm_' + data.itemId).animate({ "background-color": "green" }, 1000).animate({ "background-color": "white" }, 1000);
+                        }
                     }
-                    document.getElementById('bidPrice_' + data.itemId).value = '';
-                    $('#itm_' + data.itemId).animate({ "background-color": "green" }, 1000).animate({ "background-color": "white" }, 1000);
                 };
             });
         </script>
@@ -118,10 +127,10 @@
                         <span data-bind="text: description"></span>
                     </td>
                     <td>
-                        <span class="bid" data-bind="text: bid"></span>
+                        <span class="bid" data-bind="text: bid, attr:{id:bidId}"></span>
                     </td>
                     <td>
-                        <span class="ask" data-bind="text: ask"></span>
+                        <span class="ask" data-bind="text: ask, attr: {id:askId}"></span>
                     </td>
                     <td>
                         <span data-bind="text: lastPrice, attr: { id: lastPriceId}"></span>

@@ -15,10 +15,13 @@
     $('[name="hrefbid"]').live('click', function (e) {
         var id = $(this).attr('id').replace('href_', '');
         var bidPrice = document.getElementById('bidPrice_' + id).value;
+        //Will only pass id and bid when db is implemented
+        var askPrice = document.getElementById('ask_' + id).innerHTML;
         var lastPrice = document.getElementById('lastPrice_' + id).innerHTML;
-        $.getJSON('/Home/ItemBid', { 'id': id, 'bid': bidPrice, 'lastPrice': lastPrice }, function (data) {
+        $.getJSON('/Home/ItemBid', { 'id': id, 'bid': bidPrice, 'ask' : askPrice,  'lastPrice': lastPrice }, function (data) {
 
         });
+        document.getElementById('bidPrice_' + id).value = '';
     });
 });
 //Ajax succes and failure methods

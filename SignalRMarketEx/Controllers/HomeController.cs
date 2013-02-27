@@ -18,7 +18,7 @@ namespace SignalRMarketEx.Controllers
         public ActionResult Index()
         {
             var itemEntry = new List<ItemEntity>();
-            itemEntry.Add(new ItemEntity() { Bid=25, Description="initial Item. A filler until we can get persistant store", Ask=35, LastPrice=30, Product="Item 1" });
+            itemEntry.Add(new ItemEntity() { Id=000, Bid=25, Description="initial Item. A filler until we can get persistant store", Ask=35, LastPrice=30, Product="Item 1" });
             return View(itemEntry);
         }
         [HttpPost]
@@ -33,9 +33,10 @@ namespace SignalRMarketEx.Controllers
             context.Clients.All.updateItems(model);
             return Json(model);
         }
-        public JsonResult ItemBid(int id, decimal bid, decimal lastPrice)
+        public JsonResult ItemBid(int id, decimal bid, decimal ask, decimal lastPrice)
         {
-            ItemEntity itm = new ItemEntity(id, bid, lastPrice);
+            ItemEntity itm = new ItemEntity(id, bid, ask, lastPrice);
+            itm.CalculatePrice();
             var context = GlobalHost.ConnectionManager.GetHubContext<MarketExchangeHub>();
             context.Clients.All.updateBidPrice(itm);
             return Json(itm, JsonRequestBehavior.AllowGet);

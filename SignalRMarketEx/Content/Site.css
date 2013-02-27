@@ -92,6 +92,7 @@ button
 	#tblMarket td
 	{
 		border-bottom:1px solid black;
+		text-align:center;
 	}
 	#tblMarket tr:last-child td
 	{
@@ -103,7 +104,7 @@ button
 	}
 	#tblMarket td,#tblMarket th
 	{
-		padding:5px;
+		padding:3px;
 	}
 #btnShowAdd
 {
