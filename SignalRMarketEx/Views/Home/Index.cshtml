@@ -12,91 +12,15 @@
         <script src="~/Scripts/knockout-2.2.0.js"></script>
         <script src="~/Scripts/jquery-ui-1.9.2.min.js"></script>
         <script src="~/signalr/hubs"></script>
+        <script src="~/Scripts/angular.js"></script>
+        <script src="~/Scripts/angular-bootstrap.min.js"></script>
+        <script src="~/Scripts/ui-bootstrap-tpls-0.2.0.min.js"></script>
         <script src="~/Scripts/marketexchange.js"></script>
-        <script type="text/javascript">
-            $(function () {
-                function Item(data) {
-                    this.itemId = ko.observable(data.itemId);
-                    this.hrefId = ko.observable(data.hrefId);
-                    this.bidPriceId = ko.observable(data.bidPriceId);
-                    this.lastPriceId = ko.observable(data.lastPriceId);
-                    this.bidId = ko.observable(data.bidId);
-                    this.askId = ko.observable(data.askId);
-                    this.product = ko.observable(data.product);
-                    this.description = ko.observable(data.description);
-                    this.bid = ko.observable(data.bid);
-                    this.ask = ko.observable(data.ask);
-                    this.lastPrice = ko.observable(data.lastPrice);
-                    this.bidPrice = ko.observable(data.bidPrice);
-                }
-                var itemsModel = function ItemListViewModel() {
-                    var self = this;
-                    self.items = ko.observableArray([]);
-                    @foreach(var itm in Model)
-                    {
-                        @Html.Raw("self.items.push(new Item({")
-                        @Html.Raw("itemId: 'itm_" + itm.Id + "',")
-                        @Html.Raw("hrefId: 'href_" + itm.Id + "',")
-                        @Html.Raw("bidPriceId: 'bidPrice_" + itm.Id + "',")
-                        @Html.Raw("lastPriceId: 'lastPrice_" + itm.Id + "',")
-                        @Html.Raw("bidId: 'bid_" + itm.Id + "',")
-                        @Html.Raw("askId: 'ask_" + itm.Id + "',")
-                        @Html.Raw("product: '"+ itm.Product +"',")
-                        @Html.Raw("description: '"+itm.Description+"',")
-                        @Html.Raw("bid: "+(!itm.Bid.HasValue?"0" : itm.Bid.Value.ToString())+",")
-                        @Html.Raw("ask: "+(!itm.Ask.HasValue?"0":itm.Ask.Value.ToString())+",")
-                        @Html.Raw("lastPrice: "+(!itm.LastPrice.HasValue?"0":itm.LastPrice.Value.ToString())+",")
-                        @Html.Raw("bidPrice: \"\"")
-                        @Html.Raw("}));")
-                    }
-                    //Operations
-                    self.updateItems = function (data) {
-                        self.items.push(new Item({
-                            itemId: 'itm_' + data.itemId,
-                            hrefId: 'href_' + data.itemId,
-                            bidPriceId: 'bidPrice_' + data.itemId,
-                            lastPriceId: 'lastPrice_' + data.itemId,
-                            bidId: 'bid_' + data.itemId,
-                            askId: 'ask_' + data.itemId,
-                            product: data.product,
-                            description: data.description,
-                            bid: data.bid,
-                            ask: data.ask,
-                            lastPrice: data.lastPrice,
-                            bidPrice: ""
-                        }));
-                    };
-                    self.bidItem = function (data) {
-
-                    };
-                }
-                ko.applyBindings(itemsModel());
-                //SignalR bindings
-                var hub = $.connection.marketExchangeHub;
-                $.connection.hub.start();
-                hub.client.updateItems = function (data) {
-                    updateItems(data);
-                    $('#itm_' + data.itemId).animate({ "background-color": "red" }, 1000).animate({ "background-color": "white" }, 1000);
-                };
-                hub.client.updateBidPrice = function (data) {
-                    if (data.priceUpdated == true) {
-                        document.getElementById('lastPrice_' + data.itemId).innerHTML = data.lastPrice;
-                        $('#itm_' + data.itemId).animate({ "background-color": "green" }, 1000).animate({ "background-color": "white" }, 1000);
-                    }
-                    else {
-                        var currentBid = document.getElementById('bid_' + data.itemId).innerHTML;
-                        if (data.bid > currentBid) {
-                            document.getElementById('bid_' + data.itemId).innerHTML = data.bid;
-                            $('#itm_' + data.itemId).animate({ "background-color": "green" }, 1000).animate({ "background-color": "white" }, 1000);
-                        }
-                    }
-                };
-            });
-        </script>
+        <script src="~/Scripts/marketex_angular.js"></script>
     }
 <div id="wrapper">
-    <button id="btnShowAdd">Add An Item</button>
-    <table id="tblMarket">
+    <button id="btnShowAdd" ng-controller="showItemController" ng-click="openDialog()" >Add An Item</button>
+    <table id="tblMarket" ng-controller="itemController">
         <thead>
             <tr>
                 <th>
@@ -114,40 +38,33 @@
                 <th>
                     Last Price
                 </th>
-                <th></th>
+                <th>
+                    <input type="hidden" signal-r-directive-updated="updatedItem"  />
+                </th>
             </tr>
         </thead>
         <tbody>
-           <!--ko foreach: items -->
-                <tr data-bind="attr: {id:itemId}">
-                    <td>
-                        <span data-bind="text: product"></span>
-                    </td>
-                    <td>
-                        <span data-bind="text: description"></span>
-                    </td>
-                    <td>
-                        <span class="bid" data-bind="text: bid, attr:{id:bidId}"></span>
-                    </td>
-                    <td>
-                        <span class="ask" data-bind="text: ask, attr: {id:askId}"></span>
-                    </td>
-                    <td>
-                        <span data-bind="text: lastPrice, attr: { id: lastPriceId}"></span>
-                    </td>
-                    <td>
-                        <input name="biddingPrice" style="width:50px;" data-bind="value: bidPrice, attr: { id: bidPriceId }" />
-                        <a href="#" name="hrefbid" data-bind="value: bid, attr: {id:hrefId}">Bid</a>
-                    </td>
-                </tr>
-            <!-- /ko -->
+             <tr ng-cloak ng-repeat="item in items" id='itm_{{item.itemId}}' signal-r-directive-added="addedItem" >
+                <td>
+                    {{item.product}}
+                </td>
+                <td>
+                    {{item.description}}
+                </td>
+                <td>
+                    <span class="bid" id='bid_{{item.itemId}}'>{{item.bid}}</span>
+                </td>
+                <td>
+                    <span class="ask" id='ask_{{item.itemId}}'>{{item.ask}}</span>
+                </td>
+                <td>
+                    <span id='lastPrice_{{item.itemId}}' >{{item.lastPrice}}</span>
+                </td>
+                <td>
+                    <input name="biddingPrice" style="width:50px;" ng-model="bidPrice" />
+                    <a href="#" name="hrefbid" value='{{item.bid}}' id='href_{{item.itemId}}' ng-click="submitBid(item, bidPrice)">Bid</a>
+                </td>
+            </tr>
         </tbody>
     </table>
-    <div title="Add A Product" id="divAddItemModal">
-        @using (Ajax.BeginForm("ItemEntry", "Home", new AjaxOptions { OnSuccess = "UpdateItemSuccess", OnFailure = "UpdateItemFailure" }))
-        {
-            @Html.Partial("_ItemEntry", new ItemEntity())
-            <button type="submit" >Add</button>
-        }
-    </div>
 </div>

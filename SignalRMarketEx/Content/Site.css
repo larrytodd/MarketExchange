@@ -64,26 +64,23 @@ button
 .validation-summary-valid {
     display: none;
 }
-#divAddItemModal button
+.modal
 {
-	margin:0 auto;
-	display:block;
-	clear:both;
-	margin-top:5px;
+	width:400px;
 }
-#divAddItemModal  ul > li
-{
-	list-style:none;
-	clear:both;
-}
-#divAddItemModal ul > li input
+.modal-body input
 {
 	float:right;
+	margin-right:10px;
+}
+.modal-body p
+{
+	margin-left:10px;
 }
 #tblMarket
 {
 	margin:0 auto;
-	width:600px;
+	width:575px;
 	border:1px solid black;
 	border-collapse:collapse;
 	table-layout:fixed;
